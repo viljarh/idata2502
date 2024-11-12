@@ -1,0 +1,74 @@
+---
+heat_template_version: "2013-05-23"
+
+resources:
+  my_network:
+    type: OS::Neutron::Net
+    properties:
+      name: viljar-network
+
+  my_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      cidr: 10.0.0.0/24
+      gateway_ip: 10.0.0.1
+      network_id:
+        get_resource: my_network
+
+  my_router:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info:
+        network: ntnu-internal
+
+  my_router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: my_router }
+      subnet_id: { get_resource: my_subnet }
+
+  my_security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: my_security_group
+      description: "Security group for my instance"
+      rules:
+        - protocol: tcp
+          port_range_min: 22
+          port_range_max: 22
+          remote_ip_prefix: 0.0.0.0/0
+        - protocol: tcp
+          port_range_min: 80
+          port_range_max: 80
+          remote_ip_prefix: 0.0.0.0/0
+        - protocol: icmp
+          remote_ip_prefix: 0.0.0.0/0
+
+  my_port:
+    type: OS::Neutron::Port
+    properties:
+      network_id: { get_resource: my_network }
+      security_groups: [{ get_resource: my_security_group }]
+      fixed_ips:
+        - subnet_id: { get_resource: my_subnet }
+
+  my_instance:
+    type: OS::Nova::Server
+    properties:
+      flavor: gx2.1c1r
+      image: Ubuntu Server 22.04 (Jammy) amd64 20220518
+      name: my_instance
+      networks:
+        - port: { get_resource: my_port }
+      key_name: ssh-openstack
+
+  my_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: ntnu-internal
+
+  my_floating_ip_assoc:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: my_floating_ip }
+      port_id: { get_resource: my_port }

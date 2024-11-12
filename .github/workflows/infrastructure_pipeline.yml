@@ -1,0 +1,10 @@
+name: Infrastructure Delivery Pipeline
+
+on: [push]
+
+jobs:
+  infrastructure_pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
