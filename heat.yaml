@@ -24,8 +24,8 @@ resources:
   my_router_interface:
     type: OS::Neutron::RouterInterface
     properties:
-      router_id: { get_resource: my_router }
-      subnet_id: { get_resource: my_subnet }
+      router_id: {get_resource: my_router}
+      subnet_id: {get_resource: my_subnet}
 
   my_security_group:
     type: OS::Neutron::SecurityGroup
@@ -47,10 +47,10 @@ resources:
   my_port:
     type: OS::Neutron::Port
     properties:
-      network_id: { get_resource: my_network }
-      security_groups: [{ get_resource: my_security_group }]
+      network_id: {get_resource: my_network}
+      security_groups: [{get_resource: my_security_group}]
       fixed_ips:
-        - subnet_id: { get_resource: my_subnet }
+        - subnet_id: {get_resource: my_subnet}
 
   my_instance:
     type: OS::Nova::Server
@@ -59,7 +59,7 @@ resources:
       image: Ubuntu Server 22.04 (Jammy) amd64 20220518
       name: my_instance
       networks:
-        - port: { get_resource: my_port }
+        - port: {get_resource: my_port}
       key_name: ssh-openstack
 
   my_floating_ip:
@@ -70,5 +70,5 @@ resources:
   my_floating_ip_assoc:
     type: OS::Neutron::FloatingIPAssociation
     properties:
-      floatingip_id: { get_resource: my_floating_ip }
-      port_id: { get_resource: my_port }
+      floatingip_id: {get_resource: my_floating_ip}
+      port_id: {get_resource: my_port}
