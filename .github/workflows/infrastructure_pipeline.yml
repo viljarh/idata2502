@@ -16,26 +16,44 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up OpenStack CLI and Linter
+      - name: Set up openstack cli
         run: |
           sudo apt update
           sudo apt install -y python3-openstackclient yamllint
 
-      - name: YAML Syntax Check
+      - name: Set up environment variables
+        env:
+          OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
+          OS_PROJECT_ID: ${{ secrets.OS_PROJECT_ID }}
+          OS_USERNAME: ${{ secrets.OS_USERNAME }}
+          OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
+          OS_REGION_NAME: ${{ secrets.OS_REGION_NAME }}
+          OS_USER_DOMAIN_NAME: ${{ secrets.OS_USER_DOMAIN_NAME }}
+          OS_PROJECT_NAME: ${{ secrets.OS_PROJECT_NAME }}
+          OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
+        run: |
+          export OS_AUTH_URL=$OS_AUTH_URL
+          export OS_PROJECT_ID=$OS_PROJECT_ID
+          export OS_USERNAME=$OS_USERNAME
+          export OS_PASSWORD=$OS_PASSWORD
+          export OS_REGION_NAME=$OS_REGION_NAME
+          export OS_USER_DOMAIN_NAME=$OS_USER_DOMAIN_NAME
+          export OS_PROJECT_NAME=$OS_PROJECT_NAME
+          export OS_INTERFACE=$OS_INTERFACE
+
+      - name: YAML linter
         run: yamllint heat.yaml
 
-      - name: Deploy Stack
+      - name: Deploy stack
         run: |
-          # Always delete any existing stack with the same name
           openstack stack delete --yes --wait my_stack || true
-          # Create a new stack
           openstack stack create -t heat.yaml --wait my_stack
 
-      - name: Run Unit Test
+      - name: Run unit test
         run: ./unit_test.sh
 
-      - name: Run Integration Test
+      - name: Run integration test
         run: ./integration_test.sh
 
-      - name: Run End-to-End Test
+      - name: Run end to end test
         run: ./end_to_end_test.sh
