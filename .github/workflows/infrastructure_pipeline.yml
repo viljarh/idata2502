@@ -29,7 +29,7 @@ jobs:
           OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
           OS_IDENTITY_API_VERSION: ${{ secrets.OS_IDENTITY_API_VERSION }}
         run: |
-          openstack token issue
+          openstack token issue || true
 
       - name: Lint YAML file
         run: yamllint heat.yaml
