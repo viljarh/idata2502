@@ -26,6 +26,9 @@ jobs:
 
       - name: Deploy Stack
         run: |
+          # Always delete any existing stack with the same name
+          openstack stack delete --yes --wait my_stack || true
+          # Create a new stack
           openstack stack create -t heat.yaml --wait my_stack
 
       - name: Run Unit Test
