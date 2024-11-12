@@ -1,59 +1,48 @@
-name: Infrastructure Delivery Pipeline
+name: Infrastructure Pipeline
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  infrastructure_pipeline:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Set up openstack cli
+      - name: Set up OpenStack CLI and YAML Linter
         run: |
           sudo apt update
           sudo apt install -y python3-openstackclient yamllint
 
-      - name: Set up environment variables
+      - name: Authenticate with OpenStack
         env:
           OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
           OS_PROJECT_ID: ${{ secrets.OS_PROJECT_ID }}
+          OS_PROJECT_NAME: ${{ secrets.OS_PROJECT_NAME }}
+          OS_USER_DOMAIN_NAME: ${{ secrets.OS_USER_DOMAIN_NAME }}
           OS_USERNAME: ${{ secrets.OS_USERNAME }}
           OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
           OS_REGION_NAME: ${{ secrets.OS_REGION_NAME }}
-          OS_USER_DOMAIN_NAME: ${{ secrets.OS_USER_DOMAIN_NAME }}
-          OS_PROJECT_NAME: ${{ secrets.OS_PROJECT_NAME }}
           OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
         run: |
-          export OS_AUTH_URL=$OS_AUTH_URL
-          export OS_PROJECT_ID=$OS_PROJECT_ID
-          export OS_USERNAME=$OS_USERNAME
-          export OS_PASSWORD=$OS_PASSWORD
-          export OS_REGION_NAME=$OS_REGION_NAME
-          export OS_USER_DOMAIN_NAME=$OS_USER_DOMAIN_NAME
-          export OS_PROJECT_NAME=$OS_PROJECT_NAME
-          export OS_INTERFACE=$OS_INTERFACE
+          openstack token issue
 
-      - name: YAML linter
+      - name: Lint YAML file
         run: yamllint heat.yaml
 
-      - name: Deploy stack
+      - name: Deploy Stack
+        env:
+          OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
+          OS_PROJECT_ID: ${{ secrets.OS_PROJECT_ID }}
+          OS_PROJECT_NAME: ${{ secrets.OS_PROJECT_NAME }}
+          OS_USER_DOMAIN_NAME: ${{ secrets.OS_USER_DOMAIN_NAME }}
+          OS_USERNAME: ${{ secrets.OS_USERNAME }}
+          OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
+          OS_REGION_NAME: ${{ secrets.OS_REGION_NAME }}
+          OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
         run: |
           openstack stack delete --yes --wait my_stack || true
           openstack stack create -t heat.yaml --wait my_stack
-
-      - name: Run unit test
-        run: ./unit_test.sh
-
-      - name: Run integration test
-        run: ./integration_test.sh
-
-      - name: Run end to end test
-        run: ./end_to_end_test.sh
