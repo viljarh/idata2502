@@ -27,6 +27,7 @@ jobs:
           OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
           OS_REGION_NAME: ${{ secrets.OS_REGION_NAME }}
           OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
+          OS_IDENTITY_API_VERSION: ${{ secrets.OS_IDENTITY_API_VERSION }}
         run: |
           openstack token issue
 
@@ -43,6 +44,8 @@ jobs:
           OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
           OS_REGION_NAME: ${{ secrets.OS_REGION_NAME }}
           OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
+          OS_IDENTITY_API_VERSION: ${{ secrets.OS_IDENTITY_API_VERSION }}
+
         run: |
           openstack stack delete --yes --wait my_stack || true
           openstack stack create -t heat.yaml --wait my_stack
