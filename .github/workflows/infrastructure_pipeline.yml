@@ -1,10 +1,42 @@
 name: Infrastructure Delivery Pipeline
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   infrastructure_pipeline:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Set up OpenStack CLI and Linter
+        run: |
+          sudo apt update
+          sudo apt install -y python3-openstackclient yamllint
+
+      - name: YAML Syntax Check
+        run: yamllint heat.yaml
+
+      - name: Deploy Stack
+        run: |
+          openstack stack create -t heat.yaml --wait my_stack
+
+      - name: Run Unit Test
+        run: ./unit_test.sh
+
+      - name: Run Integration Test
+        run: ./integration_test.sh
+
+      - name: Run End-to-End Test
+        run: ./end_to_end_test.sh
+
+      - name: Cleanup Resources
+        if: always()
+        run: ./cleanup_test.sh
