@@ -39,7 +39,3 @@ jobs:
 
       - name: Run End-to-End Test
         run: ./end_to_end_test.sh
-
-      - name: Cleanup Resources
-        if: always()
-        run: ./cleanup_test.sh
