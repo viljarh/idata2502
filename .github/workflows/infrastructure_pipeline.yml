@@ -33,19 +33,13 @@ jobs:
 
       - name: Lint YAML file
         run: yamllint heat.yaml
-
-      - name: Deploy Stack
-        env:
-          OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
-          OS_PROJECT_ID: ${{ secrets.OS_PROJECT_ID }}
-          OS_PROJECT_NAME: ${{ secrets.OS_PROJECT_NAME }}
-          OS_USER_DOMAIN_NAME: ${{ secrets.OS_USER_DOMAIN_NAME }}
-          OS_USERNAME: ${{ secrets.OS_USERNAME }}
-          OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
-          OS_REGION_NAME: ${{ secrets.OS_REGION_NAME }}
-          OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
-          OS_IDENTITY_API_VERSION: ${{ secrets.OS_IDENTITY_API_VERSION }}
-
+      - name: Deploy or Update Stack
         run: |
-          openstack stack delete --yes --wait my_stack || true
+        if openstack stack show my_stack >/dev/null 2>&1; then
+          echo "Updating existing stack..."
+          openstack stack update -t heat.yaml my_stack
+        else
+          echo "Creating new stack..."
           openstack stack create -t heat.yaml --wait my_stack
+        fi
+
