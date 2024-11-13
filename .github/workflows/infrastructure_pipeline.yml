@@ -17,39 +17,40 @@ jobs:
           sudo apt update
           sudo apt install -y python3-openstackclient python3-heatclient yamllint
 
-      - name: Authenticate with OpenStack
-        env:
-          OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
-          OS_PROJECT_ID: ${{ secrets.OS_PROJECT_ID }}
-          OS_PROJECT_NAME: ${{ secrets.OS_PROJECT_NAME }}
-          OS_USER_DOMAIN_NAME: ${{ secrets.OS_USER_DOMAIN_NAME }}
-          OS_USERNAME: ${{ secrets.OS_USERNAME }}
-          OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
-          OS_REGION_NAME: ${{ secrets.OS_REGION_NAME }}
-          OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
-          OS_IDENTITY_API_VERSION: ${{ secrets.OS_IDENTITY_API_VERSION }}
-        run: |
-          openstack token issue || true
-
       - name: Lint Yaml file
         run: yamllint heat.yaml
 
-      - name: Deploy or Update Stack
+      - name: Configure OpenStack Environment
         env:
           OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
-          OS_PROJECT_ID: ${{ secrets.OS_PROJECT_ID }}
           OS_PROJECT_NAME: ${{ secrets.OS_PROJECT_NAME }}
-          OS_USER_DOMAIN_NAME: ${{ secrets.OS_USER_DOMAIN_NAME }}
           OS_USERNAME: ${{ secrets.OS_USERNAME }}
           OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
           OS_REGION_NAME: ${{ secrets.OS_REGION_NAME }}
-          OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
+          OS_USER_DOMAIN_NAME: ${{ secrets.OS_USER_DOMAIN_NAME }}
+          OS_PROJECT_DOMAIN_ID: ${{ secrets.OS_PROJECT_DOMAIN_ID }}
+          OS_PROJECT_ID: ${{ secrets.OS_PROJECT_ID }}
           OS_IDENTITY_API_VERSION: ${{ secrets.OS_IDENTITY_API_VERSION }}
+          OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
+        run: echo "Configured OpenStack environment variables."
+
+      - name: Update OpenStack Stack
+        env:
+          OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
+          OS_PROJECT_NAME: ${{ secrets.OS_PROJECT_NAME }}
+          OS_USERNAME: ${{ secrets.OS_USERNAME }}
+          OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
+          OS_REGION_NAME: ${{ secrets.OS_REGION_NAME }}
+          OS_USER_DOMAIN_NAME: ${{ secrets.OS_USER_DOMAIN_NAME }}
+          OS_PROJECT_DOMAIN_ID: ${{ secrets.OS_PROJECT_DOMAIN_ID }}
+          OS_PROJECT_ID: ${{ secrets.OS_PROJECT_ID }}
+          OS_IDENTITY_API_VERSION: ${{ secrets.OS_IDENTITY_API_VERSION }}
+          OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
         run: |
-          if openstack stack show my_stack >/dev/null 2>&1; then
+          if openstack stack show infrastructure-delivery-pipeline-stack >/dev/null 2>&1; then
             echo "Updating existing stack..."
-            openstack stack update -t heat.yaml my_stack
+            openstack stack update --existing --template heat.yaml infrastructure-delivery-pipeline-stack
           else
             echo "Creating new stack..."
-            openstack stack create -t heat.yaml --wait my_stack
+            openstack stack create --template heat.yaml infrastructure-delivery-pipeline-stack
           fi
