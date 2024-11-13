@@ -33,13 +33,13 @@ jobs:
 
       - name: Lint YAML file
         run: yamllint heat.yaml
+
       - name: Deploy or Update Stack
         run: |
-        if openstack stack show my_stack >/dev/null 2>&1; then
-          echo "Updating existing stack..."
-          openstack stack update -t heat.yaml my_stack
-        else
-          echo "Creating new stack..."
-          openstack stack create -t heat.yaml --wait my_stack
-        fi
-
+          if openstack stack show my_stack >/dev/null 2>&1; then
+            echo "Updating existing stack..."
+            openstack stack update -t heat.yaml my_stack
+          else
+            echo "Creating new stack..."
+            openstack stack create -t heat.yaml --wait my_stack
+          fi
