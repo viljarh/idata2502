@@ -31,7 +31,7 @@ jobs:
         run: |
           openstack token issue || true
 
-      - name: Lint YAML file
+      - name: Lint Yaml file
         run: yamllint heat.yaml
 
       - name: Deploy or Update Stack
