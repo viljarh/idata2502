@@ -91,4 +91,5 @@ jobs:
             # Restart PM2 with the correct Node.js version
             pm2 delete all || true
             pm2 start server.js
-        EOF
+EOF
+
