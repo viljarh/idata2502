@@ -54,3 +54,12 @@ jobs:
             echo "Creating new stack..."
             openstack stack create --template heat.yaml infrastructure-delivery-pipeline-stack
           fi
+      - name: Deploy Webpage
+        env:
+          FLOATING_IP: ${{ secrets.FLOATING_IP }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./index.html ubuntu@$FLOATING_IP:/var/www/html/
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$FLOATING_IP "sudo systemctl restart apache2"
