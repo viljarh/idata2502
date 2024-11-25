@@ -64,6 +64,7 @@ jobs:
           # Copy the todo_app folder to the server
           scp -o StrictHostKeyChecking=no -i private_key.pem -r ./todo_app ubuntu@$FLOATING_IP:/tmp/
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$FLOATING_IP << 'EOF'
+
             # Remove the default Apache page
             sudo rm -f /var/www/html/index.html
 
@@ -77,11 +78,12 @@ jobs:
             cd ~/todo_app
 
             # Install dependencies
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm use 23.3.0
             npm install
+            pm2 restart server.js || pm2 start server.js
 
-            # Restart or start the Node.js application using pm2
-            pm2 delete server || true
-            pm2 start server.js --name server
 
             # Reload Apache to ensure reverse proxy is active
             sudo systemctl reload apache2
