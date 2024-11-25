@@ -90,8 +90,3 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
             docker run -d -p 3000:3000 --name todo-app ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
           "
-      - name: Install node.js
-        run: |
-          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt install -y nodejs
-
