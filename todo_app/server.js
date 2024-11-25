@@ -14,6 +14,7 @@ let idCounter = 1;
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/public/index.html");
 });
+
 // Get all todos
 app.get("/api/todos", (req, res) => {
   res.json(todos);
@@ -54,9 +55,4 @@ app.delete("/api/todos/:id", (req, res) => {
   res.json({ message: "Todo deleted" });
 });
 
-// Start the server
-const PORT = 3000;
-const HOST = "0.0.0.0";
-app.listen(PORT, HOST, () => {
-  console.log(`Server running on http://${HOST}:${PORT}`);
-});
+module.exports = app;
