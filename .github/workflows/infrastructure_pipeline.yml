@@ -64,32 +64,21 @@ jobs:
           chmod 600 private_key.pem
           # Copy the todo_app folder to the server
           scp -o StrictHostKeyChecking=no -i private_key.pem -r ./todo_app ubuntu@$FLOATING_IP:/tmp/
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$FLOATING_IP << 'EOF'
-            # Remove the default Apache page
-            sudo rm -f /var/www/html/index.html
 
-            # Remove the old todo_app directory if it exists
+          # Execute commands directly on the server
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$FLOATING_IP "
+            sudo rm -f /var/www/html/index.html
             if [ -d ~/todo_app ]; then
               rm -rf ~/todo_app
             fi
-
-            # Move the newly uploaded todo_app to the home directory
             mv /tmp/todo_app ~/todo_app
             cd ~/todo_app
-
-            # Ensure nvm is loaded
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-            # Use the correct Node.js version
+            export NVM_DIR=\"\$HOME/.nvm\"
+            [ -s \"\$NVM_DIR/nvm.sh\" ] && \. \"\$NVM_DIR/nvm.sh\"
             nvm install 23.3.0
             nvm use 23.3.0
-
-            # Install dependencies
             npm install
-
-            # Restart PM2 with the correct Node.js version
             pm2 delete all || true
             pm2 start server.js
-EOF
+          "
 
