@@ -76,10 +76,12 @@ resources:
           - sudo rm -rf /var/www/html/*
 
           # Clone your repository to serve content
-          - sudo git clone https://github.com/viljarh/idata2502.git /var/www/html
+          - sudo git clone https://github.com/viljarh/idata2502.git
+          /var/www/html
 
           # Set up Node.js and npm
-          - curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+          - curl -fsSL https://deb.nodesource.com/setup_16.x |
+          sudo -E bash -
           - sudo apt-get install -y nodejs
 
           # Install PM2 globally
