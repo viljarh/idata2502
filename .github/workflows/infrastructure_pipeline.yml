@@ -34,7 +34,7 @@ jobs:
           OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
         run: echo "Configured OpenStack environment variables."
 
-      - name: Update OpenStack Stack
+      - name: Deploy or Update OpenStack Stack
         env:
           OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
           OS_PROJECT_NAME: ${{ secrets.OS_PROJECT_NAME }}
@@ -54,7 +54,8 @@ jobs:
             echo "Creating new stack..."
             openstack stack create --template heat.yaml infrastructure-delivery-pipeline-stack
           fi
-      - name: Upload and deploy webpage
+
+      - name: Upload and Deploy Webpage
         env:
           FLOATING_IP: ${{ secrets.FLOATING_IP }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -62,4 +63,25 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           scp -o StrictHostKeyChecking=no -i private_key.pem -r ./index.html ubuntu@$FLOATING_IP:/tmp/
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$FLOATING_IP "sudo mv /tmp/index.html /var/www/html/index.html && sudo systemctl restart apache2"
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$FLOATING_IP << EOF
+          sudo mv /tmp/index.html /var/www/html/index.html
+          sudo systemctl restart apache2
+          EOF
+
+      - name: Deploy ToDo App
+        env:
+          FLOATING_IP: ${{ secrets.FLOATING_IP }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./todo_app ubuntu@$FLOATING_IP:/tmp/
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$FLOATING_IP << EOF
+          if [ -d ~/todo_app ]; then
+            rm -rf ~/todo_app
+          fi
+          mv /tmp/todo_app ~/todo_app
+          cd ~/todo_app
+          npm install
+          pm2 restart server.js || pm2 start server.js
+          EOF
