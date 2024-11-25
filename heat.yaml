@@ -66,11 +66,33 @@ resources:
         packages:
           - apache2
           - git
+          - curl
         runcmd:
+          # Enable and start Apache2
           - systemctl enable apache2
           - systemctl start apache2
+
+          # Clear the default Apache directory
           - rm -rf /var/www/html/*
-          - git clone https://github.com/viljarh/idata2502.git /var/www/html/
+
+          # Clone your repository to serve content
+          - git clone https://github.com/viljarh/idata2502.git /var/www/html
+
+          # Set up Node.js and npm
+          - curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+          - apt-get install -y nodejs
+
+          # Install PM2 globally
+          - npm install -g pm2
+
+          # Navigate to the todo_app folder and install dependencies
+          - cd /var/www/html/todo_app
+          - npm install
+
+          # Start the Node.js application using PM2
+          - pm2 start server.js
+          - pm2 save
+          - pm2 startup
 
   my_floating_ip:
     type: OS::Neutron::FloatingIP
