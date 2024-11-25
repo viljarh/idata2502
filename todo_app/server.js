@@ -11,6 +11,9 @@ app.use(express.static("public")); // Serve frontend files
 const todos = [];
 let idCounter = 1;
 
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/public/index.html");
+});
 // Get all todos
 app.get("/api/todos", (req, res) => {
   res.json(todos);
