@@ -54,20 +54,6 @@ jobs:
             echo "Creating new stack..."
             openstack stack create --template heat.yaml infrastructure-delivery-pipeline-stack
           fi
-
-      - name: Upload and Deploy Webpage
-        env:
-          FLOATING_IP: ${{ secrets.FLOATING_IP }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          echo "$SSH_PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
-          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./index.html ubuntu@$FLOATING_IP:/tmp/
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$FLOATING_IP << EOF
-          sudo mv /tmp/index.html /var/www/html/index.html
-          sudo systemctl restart apache2
-          EOF
-
       - name: Deploy ToDo App
         env:
           FLOATING_IP: ${{ secrets.FLOATING_IP }}
@@ -75,13 +61,29 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
+          # Copy the todo_app folder to the server
           scp -o StrictHostKeyChecking=no -i private_key.pem -r ./todo_app ubuntu@$FLOATING_IP:/tmp/
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$FLOATING_IP << EOF
-          if [ -d ~/todo_app ]; then
-            rm -rf ~/todo_app
-          fi
-          mv /tmp/todo_app ~/todo_app
-          cd ~/todo_app
-          npm install
-          pm2 restart server.js || pm2 start server.js
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$FLOATING_IP << 'EOF'
+            # Remove the default Apache page
+            sudo rm -f /var/www/html/index.html
+
+            # Remove the old todo_app directory if it exists
+            if [ -d ~/todo_app ]; then
+              rm -rf ~/todo_app
+            fi
+
+            # Move the newly uploaded todo_app to the home directory
+            mv /tmp/todo_app ~/todo_app
+            cd ~/todo_app
+
+            # Install dependencies
+            npm install
+
+            # Restart or start the Node.js application using pm2
+            pm2 delete server || true
+            pm2 start server.js --name server
+
+            # Reload Apache to ensure reverse proxy is active
+            sudo systemctl reload apache2
           EOF
+
