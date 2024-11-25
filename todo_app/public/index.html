@@ -3,30 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ToDo App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        input, button {
-            padding: 10px;
-            margin: 5px 0;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            padding: 5px 0;
-        }
-    </style>
+    <title>IDATA2502 To-Do App</title>
+    <link href="styles.css" rel="stylesheet">
 </head>
 <body>
-    <h1>ToDo App</h1>
-    <input type="text" id="todoInput" placeholder="Add a new task">
-    <button onclick="addTodo()">Add</button>
-    <ul id="todoList"></ul>
+    <div class="container">
+        <h1>ToDo App</h1>
+        <div class="todo-input">
+            <input type="text" id="todoInput" placeholder="Add a new task">
+            <button onclick="addTodo()">Add</button>
+        </div>
+        <ul id="todoList" class="todo-list"></ul>
+    </div>
 
     <script>
         async function fetchTodos() {
@@ -37,8 +25,10 @@
             todos.forEach((todo) => {
                 const li = document.createElement("li");
                 li.innerHTML = `
-                    <span>${todo.task}</span>
-                    <button onclick="deleteTodo(${todo.id})">Delete</button>
+                    <div class="todo-item">
+                        <span>${todo.task}</span>
+                        <button onclick="deleteTodo(${todo.id})" class="delete-btn">Delete</button>
+                    </div>
                 `;
                 todoList.appendChild(li);
             });
@@ -65,4 +55,3 @@
     </script>
 </body>
 </html>
-
