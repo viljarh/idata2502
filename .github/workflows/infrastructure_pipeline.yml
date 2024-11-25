@@ -54,6 +54,7 @@ jobs:
             echo "Creating new stack..."
             openstack stack create --template heat.yaml infrastructure-delivery-pipeline-stack
           fi
+
       - name: Deploy ToDo App
         env:
           FLOATING_IP: ${{ secrets.FLOATING_IP }}
@@ -64,7 +65,6 @@ jobs:
           # Copy the todo_app folder to the server
           scp -o StrictHostKeyChecking=no -i private_key.pem -r ./todo_app ubuntu@$FLOATING_IP:/tmp/
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$FLOATING_IP << 'EOF'
-
             # Remove the default Apache page
             sudo rm -f /var/www/html/index.html
 
