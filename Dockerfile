@@ -17,4 +17,4 @@ COPY todo_app/ .
 EXPOSE 3000
 
 # Run command
-CMD ["npm", "start"]
+CMD ["node", "start.js"]

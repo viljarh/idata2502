@@ -33,6 +33,11 @@ jobs:
           OS_IDENTITY_API_VERSION: ${{ secrets.OS_IDENTITY_API_VERSION }}
           OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
         run: echo "Configured OpenStack environment variables."
+      - name: Run Tests
+        run: |
+          cd todo_app
+          npm install
+          npm test
 
       - name: Deploy or Update OpenStack Stack
         env:
