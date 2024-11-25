@@ -57,7 +57,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t todo-app .
+          sudo docker build -t todo-app .
 
       - name: Push Docker Image to Docker Hub
         env:
