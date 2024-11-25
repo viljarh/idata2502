@@ -55,30 +55,31 @@ jobs:
             openstack stack create --template heat.yaml infrastructure-delivery-pipeline-stack
           fi
 
-      - name: Deploy ToDo App
+      - name: Build Docker Image
+        run: |
+          docker build -t todo-app .
+
+      - name: Push Docker Image to Docker Hub
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker tag todo-app ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
+
+      - name: Deploy Docker Container
         env:
           FLOATING_IP: ${{ secrets.FLOATING_IP }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          # Copy the todo_app folder to the server
-          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./todo_app ubuntu@$FLOATING_IP:/tmp/
-
-          # Execute commands directly on the server
           ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@$FLOATING_IP "
-            sudo rm -f /var/www/html/index.html
-            if [ -d ~/todo_app ]; then
-              rm -rf ~/todo_app
-            fi
-            mv /tmp/todo_app ~/todo_app
-            cd ~/todo_app
-            export NVM_DIR=\"\$HOME/.nvm\"
-            [ -s \"\$NVM_DIR/nvm.sh\" ] && \. \"\$NVM_DIR/nvm.sh\"
-            nvm install 23.3.0
-            nvm use 23.3.0
-            npm install
-            pm2 delete all || true
-            pm2 start server.js
+            docker stop todo-app || true
+            docker rm todo-app || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
+            docker run -d -p 3000:3000 --name todo-app ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
           "
+
 
