@@ -77,15 +77,18 @@ jobs:
             mv /tmp/todo_app ~/todo_app
             cd ~/todo_app
 
-            # Install dependencies
+            # Ensure nvm is loaded
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+            # Use the correct Node.js version
+            nvm install 23.3.0
             nvm use 23.3.0
+
+            # Install dependencies
             npm install
-            pm2 restart server.js || pm2 start server.js
 
-
-            # Reload Apache to ensure reverse proxy is active
-            sudo systemctl reload apache2
-          EOF
-
+            # Restart PM2 with the correct Node.js version
+            pm2 delete all || true
+            pm2 start server.js
+        EOF
