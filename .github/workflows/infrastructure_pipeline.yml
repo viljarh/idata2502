@@ -33,6 +33,10 @@ jobs:
           OS_IDENTITY_API_VERSION: ${{ secrets.OS_IDENTITY_API_VERSION }}
           OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
         run: echo "Configured OpenStack environment variables."
+      - name: Install node.js
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt install -y nodejs
       - name: Run Tests
         run: |
           cd todo_app
@@ -86,5 +90,8 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
             docker run -d -p 3000:3000 --name todo-app ${{ secrets.DOCKER_USERNAME }}/todo-app:latest
           "
-
+      - name: Install node.js
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt install -y nodejs
 
