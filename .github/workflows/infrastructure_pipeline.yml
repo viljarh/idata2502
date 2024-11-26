@@ -34,8 +34,20 @@ jobs:
           OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
         run: echo "Configured OpenStack environment variables."
 
-      - name: Run unit tests
+      - name: Run Unit Tests
+        env:
+          OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
+          OS_USERNAME: ${{ secrets.OS_USERNAME }}
+          OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
+          OS_PROJECT_NAME: ${{ secrets.OS_PROJECT_NAME }}
+          OS_PROJECT_ID: ${{ secrets.OS_PROJECT_ID }}
+          OS_USER_DOMAIN_NAME: ${{ secrets.OS_USER_DOMAIN_NAME }}
+          OS_PROJECT_DOMAIN_ID: ${{ secrets.OS_PROJECT_DOMAIN_ID }}
+          OS_REGION_NAME: ${{ secrets.OS_REGION_NAME }}
+          OS_IDENTITY_API_VERSION: ${{ secrets.OS_IDENTITY_API_VERSION }}
+          OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
         run: |
+          chmod +x unit-test.sh
           ./unit-test.sh
 
       - name: Deploy or Update OpenStack Stack
