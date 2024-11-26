@@ -72,11 +72,35 @@ jobs:
           fi
 
       - name: Run integration test
+        env:
+         OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
+         OS_USERNAME: ${{ secrets.OS_USERNAME }}
+         OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
+         OS_PROJECT_NAME: ${{ secrets.OS_PROJECT_NAME }}
+         OS_PROJECT_ID: ${{ secrets.OS_PROJECT_ID }}
+         OS_USER_DOMAIN_NAME: ${{ secrets.OS_USER_DOMAIN_NAME }}
+         OS_PROJECT_DOMAIN_ID: ${{ secrets.OS_PROJECT_DOMAIN_ID }}
+         OS_REGION_NAME: ${{ secrets.OS_REGION_NAME }}
+         OS_IDENTITY_API_VERSION: ${{ secrets.OS_IDENTITY_API_VERSION }}
+         OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
         run: |
+          chmod +x integration-test.sh
           ./integration-test.sh
 
-      - name: Run end-to-end test
+      - name: Run End-to-End Tests
+        env:
+          OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
+          OS_USERNAME: ${{ secrets.OS_USERNAME }}
+          OS_PASSWORD: ${{ secrets.OS_PASSWORD }}
+          OS_PROJECT_NAME: ${{ secrets.OS_PROJECT_NAME }}
+          OS_PROJECT_ID: ${{ secrets.OS_PROJECT_ID }}
+          OS_USER_DOMAIN_NAME: ${{ secrets.OS_USER_DOMAIN_NAME }}
+          OS_PROJECT_DOMAIN_ID: ${{ secrets.OS_PROJECT_DOMAIN_ID }}
+          OS_REGION_NAME: ${{ secrets.OS_REGION_NAME }}
+          OS_IDENTITY_API_VERSION: ${{ secrets.OS_IDENTITY_API_VERSION }}
+          OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
         run: |
+          chmod +x end-to-end-test.sh
           ./end-to-end-test.sh
 
       - name: Build Docker Image
