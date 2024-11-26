@@ -33,15 +33,10 @@ jobs:
           OS_IDENTITY_API_VERSION: ${{ secrets.OS_IDENTITY_API_VERSION }}
           OS_INTERFACE: ${{ secrets.OS_INTERFACE }}
         run: echo "Configured OpenStack environment variables."
-      # - name: Install node.js
-      #   run: |
-      #     curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-      #     sudo apt install -y nodejs
-      # - name: Run Tests
-      #   run: |
-      #     cd todo_app
-      #     npm install
-      #     npm test
+
+      - name: Run unit tests
+        run: |
+          ./unit-test.sh
 
       - name: Deploy or Update OpenStack Stack
         env:
@@ -63,6 +58,14 @@ jobs:
             echo "Creating new stack..."
             openstack stack create --template heat.yaml infrastructure-delivery-pipeline-stack
           fi
+
+      - name: Run integration test
+        run: |
+          ./integration-test.sh
+
+      - name: Run end-to-end test
+        run: |
+          ./end-to-end-test.sh
 
       - name: Build Docker Image
         run: |
