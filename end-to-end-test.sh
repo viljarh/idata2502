@@ -16,12 +16,13 @@ export OS_INTERFACE=$OS_INTERFACE
 
 # Fetch the floating IP
 FLOATING_IP=$(openstack floating ip list --status ACTIVE -f value -c "Floating IP Address" | head -n 1)
+echo "Floating IP fetched: $FLOATING_IP"
 
 # Perform a simple end-to-end check
-if curl -s "http://$FLOATING_IP" | grep -q "ToDo App"; then
+if curl -s "http://$FLOATING_IP:3000" | grep -q "ToDo App"; then
   echo "End-to-end test passed - Application is accessible"
 else
-  echo "End-to-end test failed - Application is not accessible"
+  echo "End-to-end test failed - Application is not accessible at http://$FLOATING_IP:3000"
   exit 1
 fi
 
