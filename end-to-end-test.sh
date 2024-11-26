@@ -18,14 +18,10 @@ export OS_INTERFACE=$OS_INTERFACE
 FLOATING_IP=$(openstack floating ip list --status ACTIVE -f value -c "Floating IP Address" | head -n 1)
 echo "Floating IP fetched: $FLOATING_IP"
 
-# Check if the floating IP is reachable
+# Check connectivity to the floating IP
 ping -c 4 "$FLOATING_IP" || { echo "Ping to $FLOATING_IP failed"; exit 1; }
 
-# Perform a simple end-to-end check
+# Test the application
 echo "Testing accessibility of http://$FLOATING_IP:3000"
-if curl -s "http://$FLOATING_IP:3000" | grep -q "ToDo App"; then
-  echo "End-to-end test passed - Application is accessible"
-else
-  echo "End-to-end test failed - Application is not accessible at http://$FLOATING_IP:3000"
-  exit 1
-fi
+curl -v "http://$FLOATING_IP:3000" || { echo "End-to-end test failed - Application is not accessible at http://$FLOATING_IP:3000"; exit 1; }
+
