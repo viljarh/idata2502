@@ -1,3 +1,3 @@
-# idata2502
+# IDATA2502 Infrastructure Pipeline
 
-Portfolio assignment
+This project demonstrates a fully automated CI/CD pipeline for deploying a simple to-do app.
