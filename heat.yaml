@@ -68,30 +68,23 @@ resources:
           - git
           - curl
         runcmd:
-          # Enable and start Apache2
           - sudo systemctl enable apache2
           - sudo systemctl start apache2
 
-          # Clear the default Apache directory
           - sudo rm -rf /var/www/html/*
 
-          # Clone your repository to serve content
           - sudo git clone https://github.com/viljarh/idata2502.git
           /var/www/html
 
-          # Set up Node.js and npm
           - curl -fsSL https://deb.nodesource.com/setup_16.x |
           sudo -E bash -
           - sudo apt-get install -y nodejs
 
-          # Install PM2 globally
           - sudo npm install -g pm2
 
-          # Navigate to the todo_app folder and install dependencies
           - cd /var/www/html/todo_app
           - sudo npm install
 
-          # Start the Node.js application using PM2
           - sudo pm2 start server.js
           - sudo pm2 save
           - sudo pm2 startup

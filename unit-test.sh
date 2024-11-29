@@ -2,7 +2,6 @@
 
 set -e
 
-# Load OpenStack credentials from environment variables
 export OS_AUTH_URL=$OS_AUTH_URL
 export OS_USERNAME=$OS_USERNAME
 export OS_PASSWORD=$OS_PASSWORD
@@ -14,7 +13,6 @@ export OS_REGION_NAME=$OS_REGION_NAME
 export OS_IDENTITY_API_VERSION=$OS_IDENTITY_API_VERSION
 export OS_INTERFACE=$OS_INTERFACE
 
-# Verify network
 if openstack network show network-viljar >/dev/null 2>&1; then
   echo "Network verification passed"
 else
@@ -22,7 +20,6 @@ else
   exit 1
 fi
 
-# Verify subnet
 if openstack subnet show my_subnet >/dev/null 2>&1; then
   echo "Subnet verification passed"
 else
@@ -30,7 +27,6 @@ else
   exit 1
 fi
 
-# Verify instance status
 INSTANCE_STATUS=$(openstack server show my_instance --format value --column status)
 if [ "$INSTANCE_STATUS" == "ACTIVE" ]; then
   echo "Instance is running - verification passed"

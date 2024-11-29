@@ -2,7 +2,6 @@
 
 set -e
 
-# Export OpenStack credentials from environment variables
 export OS_AUTH_URL=$OS_AUTH_URL
 export OS_USERNAME=$OS_USERNAME
 export OS_PASSWORD=$OS_PASSWORD
@@ -14,14 +13,12 @@ export OS_REGION_NAME=$OS_REGION_NAME
 export OS_IDENTITY_API_VERSION=$OS_IDENTITY_API_VERSION
 export OS_INTERFACE=$OS_INTERFACE
 
-# Fetch the floating IP
+# Fetch IP
 FLOATING_IP=$(openstack floating ip list --status ACTIVE -f value -c "Floating IP Address" | head -n 1)
 echo "Floating IP fetched: $FLOATING_IP"
 
-# Check connectivity to the floating IP
 ping -c 4 "$FLOATING_IP" || { echo "Ping to $FLOATING_IP failed"; exit 1; }
 
-# Test the application
 echo "Testing accessibility of http://$FLOATING_IP:3000"
 curl -v "http://$FLOATING_IP:3000" || { echo "End-to-end test failed - Application is not accessible at http://$FLOATING_IP:3000"; exit 1; }
 
